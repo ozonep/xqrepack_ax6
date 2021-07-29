@@ -39,8 +39,8 @@ all: $(TARGETS)
 		rm -f ra69-raw-img.bin
 
 clean:
-		rm -rf %+min.zip
-		rm -rf %+max.zip
-		rm -rf %+custom.zip
+		rm -rf *+min.zip
+		rm -rf *+max.zip
+		rm -rf *+custom.zip
 		rm -rf ubifs-root
 		rm -f ra69-raw-img.bin

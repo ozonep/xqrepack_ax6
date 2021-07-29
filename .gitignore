@@ -1,7 +1,7 @@
 ra69-raw-img.bin
 orig-firmwares/*.bin
 ubifs-root/
-*+SSH.zip
-*+SSH+MI.zip
-*+SSH+MI+opt.zip
-*+SSH+opt.zip
+*+min.zip
+*+max.zip
+*+custom.zip
+.DS_Store

@@ -14,7 +14,7 @@ Once you have SSH, you can use this repacking method to maintain SSH access for 
 Requirements
 ==============
 
-You will need to install the following tools:
+You will need to install the following tools manually or via script `install_dependencies.sh`:
 
 - [ubi_reader](https://github.com/jrspruitt/ubi_reader)
 - ubinize
@@ -31,8 +31,9 @@ Usage
 2. Run `make` to build archives of patched firmwares.
    Parallel build not supported!
    This will build patched images with following naming convention:
-   - `<firmware_image_name>+MIN.zip`: patched with original `repack-min.sh` script, which enables SSH and mount overlay partition. and does its best to disable Xiaomi functions/bloatware
-   - `<firmware_image_name>+MI+opt.zip`: enables SSH, mount overlay partition, disable Xiaomi functions/bloatware and `/opt` directory created
+   - `<firmware_image_name>+min.zip`: patched with original `repack-min.sh` script, which enables SSH and mount overlay partition. and does its best to disable Xiaomi functions/bloatware
+   - `<firmware_image_name>+max.zip`: enables SSH, mount overlay partition, disable Xiaomi functions/bloatware and `/opt` directory created
+  - `<firmware_image_name>+custom.zip`: all patches from minimal version + all what you added in the 'repack-custom.sh' script.
 
 3. After extracting a generated archive of your liking, you will get `ra69-raw-img.bin` file.
    Flash this file directly into the router using SSH.
