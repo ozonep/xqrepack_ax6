@@ -1,15 +1,16 @@
 #!/bin/sh
 #
-# unpack, modify and re-pack the Xiaomi R3600 firmware
+# unpack, modify and re-pack the Redmi AX6 firmware
 # removes checks for release channel before starting dropbear
 #
-# 2020.07.20  darell tan
+# 2020.07.20  darell tan, 29.07.2021 Andrii Marchuk
 # 
 
 set -e
 
 IMG=$1
-ROOTPW='$1$qtLLI4cm$c0v3yxzYPI46s28rbAYG//'  # "password"
+# ROOTPW='$1$qtLLI4cm$c0v3yxzYPI46s28rbAYG//'  # "password"
+ROOTPW='$1$8dQJXnUp$w8GiqwwVcvH0637LibXrs/'  # "admin"
 
 [ -e "$IMG" ] || { echo "rootfs img not found $IMG"; exit 1; }
 
