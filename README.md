@@ -31,17 +31,16 @@ Usage
 2. Run `make` to build archives of patched firmwares.
    Parallel build not supported!
    This will build patched images with following naming convention:
-   - `<firmware_image_name>+SSH.zip`: patched with original `repack-squashfs.sh` script, which enables SSH and does its best to disable Xiaomi functions/bloatware
-   - `<firmware_image_name>+SSH+MI.zip`: enables SSH, but leaves Xiaomi functions intact, only ota predownload is disabled
-   - `<firmware_image_name>+SSH+opt.zip`, `<firmware_image_name>+SSH+MI+opt.zip`: same as the respective two above, with additionally `/opt` directory created
+   - `<firmware_image_name>+MIN.zip`: patched with original `repack-min.sh` script, which enables SSH and mount overlay partition. and does its best to disable Xiaomi functions/bloatware
+   - `<firmware_image_name>+MI+opt.zip`: enables SSH, mount overlay partition, disable Xiaomi functions/bloatware and `/opt` directory created
 
-3. After extracting a generated archive of your liking, you will get `rax6-raw-img.bin` file.
+3. After extracting a generated archive of your liking, you will get `ra69-raw-img.bin` file.
    Flash this file directly into the router using SSH.
    You cannot use the web UI because this is a raw image, and more importantly has no signature.
 
    If you are using a recently xqrepack'ed firmware, you can use the `xqflash` utility on the router to flash an update image:
 
-        xqflash /tmp/rax6-raw-img.bin
+        xqflash /tmp/ra69-raw-img.bin
 
    After it completes successfully, you should be able to `reboot`.
 
@@ -53,7 +52,7 @@ Manual Flashing
 
 The R3600 firmware uses an A/B partition system, called `rootfs` and `rootfs_1`. This corresponds to `mtd12` and `mtd13`. Find the partition that is not the one in use and use `ubiformat` to write the raw image onto the partition:
 
-    ubiformat /dev/mtd12 -f /tmp/rax6-raw-img.bin -s 2048 -O 2048
+    ubiformat /dev/mtd12 -f /tmp/ra69-raw-img.bin -s 2048 -O 2048
 
 Set the nvram variable to re-initialize `/etc` (and I think to switch partitions also):
 

@@ -30,19 +30,12 @@ unsquashfs -f -d "$FSDIR" "$IMG"
 
 >&2 echo "patching squashfs..."
 
-# create /opt dir
-mkdir "$FSDIR/opt"
-chmod 755 "$FSDIR/opt"
-
 # modify dropbear init
-sed -i 's/channel=.*/channel=release2/' "$FSDIR/etc/init.d/dropbear"
-sed -i 's/flg_ssh=.*/flg_ssh=1/' "$FSDIR/etc/init.d/dropbear"
+sed -i 's/channel=.*/channel=debug/' "$FSDIR/etc/init.d/dropbear"
+# sed -i 's/flg_ssh=.*/flg_ssh=1/' "$FSDIR/etc/init.d/dropbear"
 
 # mark web footer so that users can confirm the right version has been flashed
-sed -i 's/romVersion%>/& xqrepack-opt/;' "$FSDIR/usr/lib/lua/luci/view/web/inc/footer.htm"
-
-# stop resetting root password
-sed -i '/set_user(/a return 0' "$FSDIR/etc/init.d/system"
+sed -i 's/romVersion%>/& xqrepack_uamarchuan/;' "$FSDIR/usr/lib/lua/luci/view/web/inc/footer.htm"
 
 # make sure our backdoors are always enabled by default
 sed -i '/ssh_en/d;' "$FSDIR/usr/share/xiaoqiang/xiaoqiang-reserved.txt"
@@ -53,31 +46,59 @@ ssh_en=1
 boot_wait=on
 XQDEF
 
-# always reset our access nvram variables
-grep -q -w enable_dev_access "$FSDIR/lib/preinit/31_restore_nvram" || \
- cat <<NVRAM >> "$FSDIR/lib/preinit/31_restore_nvram"
-enable_dev_access() {
-	nvram set uart_en=1
-	nvram set ssh_en=1
-	nvram set boot_wait=on
-	nvram commit
-}
+# # always reset our access nvram variables
+# grep -q -w enable_dev_access "$FSDIR/lib/preinit/31_restore_nvram" || \
+#  cat <<NVRAM >> "$FSDIR/lib/preinit/31_restore_nvram"
+# enable_dev_access() {
+# 	nvram set uart_en=1
+# 	nvram set ssh_en=1
+# 	nvram set boot_wait=on
+# 	nvram commit
+# }
 
-boot_hook_add preinit_main enable_dev_access
-NVRAM
+# boot_hook_add preinit_main enable_dev_access
+# NVRAM
 
 # modify root password
 sed -i "s@root:[^:]*@root:${ROOTPW}@" "$FSDIR/etc/shadow"
 
-# stop phone-home in web UI
-cat <<JS >> "$FSDIR/www/js/miwifi-monitor.js"
-(function(){ if (typeof window.MIWIFI_MONITOR !== "undefined") window.MIWIFI_MONITOR.log = function(a,b) {}; })();
-JS
+# # stop resetting root password
+# sed -i '/set_user(/a return 0' "$FSDIR/etc/init.d/system"
 
 # add xqflash tool into firmware for easy upgrades
 cp xqflash "$FSDIR/sbin"
 chmod 0755      "$FSDIR/sbin/xqflash"
 chown root:root "$FSDIR/sbin/xqflash"
+
+# add overlay
+cat >$FSDIR/etc/init.d/miwifi_overlay << EOF
+#!/bin/sh /etc/rc.common
+START=00
+. /lib/functions/preinit.sh
+start() {
+        [ -e /data/overlay ] || mkdir /data/overlay
+        [ -e /data/overlay/upper ] || mkdir /data/overlay/upper
+        [ -e /data/overlay/work ] || mkdir /data/overlay/work
+
+        mount --bind /data/overlay /overlay
+        fopivot /overlay/upper /overlay/work /rom 1
+
+        #Fixup miwifi misc, and DO NOT use /overlay/upper/etc instead, /etc/uci-defaults/* may be already removed
+        /bin/mount -o noatime,move /rom/data /data 2>&-
+        /bin/mount -o noatime,move /rom/etc /etc 2>&-
+        /bin/mount -o noatime,move /rom/ini /ini 2>&-
+        /bin/mount -o noatime,move /rom/userdisk /userdisk 2>&-
+
+        return 0
+}
+EOF
+chmod 755 $FSDIR/etc/init.d/miwifi_overlay
+
+# /etc/init.d/miwifi_overlay enable
+ln -s $FSDIR/etc/init.d/miwifi_overlay $FSDIR/etc/rc.d/S00miwifi_overlay
+
+# prevent auto-update
+> $FSDIR/usr/sbin/otapredownload
 
 # dont start crap services
 for SVC in stat_points statisticsservice \
@@ -95,6 +116,11 @@ rm -f $FSDIR/etc/hotplug.d/iface/*wanip_check
 
 sed -i '/start_service(/a return 0' $FSDIR/etc/init.d/messagingagent.sh
 
+# stop phone-home in web UI
+cat <<JS >> "$FSDIR/www/js/miwifi-monitor.js"
+(function(){ if (typeof window.MIWIFI_MONITOR !== "undefined") window.MIWIFI_MONITOR.log = function(a,b) {}; })();
+JS
+
 # cron jobs are mostly non-OpenWRT stuff
 for f in $FSDIR/etc/crontabs/*; do
 	sed -i 's/^/#/' $f
@@ -103,6 +129,8 @@ done
 # as a last-ditch effort, change the *.miwifi.com hostnames to localhost
 sed -i 's@\w\+.miwifi.com@localhost@g' $FSDIR/etc/config/miwifi
 
+
 >&2 echo "repacking squashfs..."
 rm -f "$IMG.new"
 mksquashfs "$FSDIR" "$IMG.new" -comp xz -b 256K -no-xattrs
+

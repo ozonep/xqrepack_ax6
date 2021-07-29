@@ -1,45 +1,26 @@
 FIRMWARES:=$(shell cd orig-firmwares; ls *.bin | sed 's/\.bin$$//')
 
-TARGETS_SSH:=$(patsubst %,%+SSH.zip,$(FIRMWARES))
-TARGETS_SSH_MI:=$(patsubst %,%+SSH+MI.zip,$(FIRMWARES))
-TARGETS_SSH_MI_OPT:=$(patsubst %,%+SSH+MI+opt.zip,$(FIRMWARES))
-TARGETS_SSH_OPT:=$(patsubst %,%+SSH+opt.zip,$(FIRMWARES))
-TARGETS:=$(shell echo $(TARGETS_SSH) $(TARGETS_SSH_MI) $(TARGETS_SSH_MI_OPT) $(TARGETS_SSH_OPT) | sed 's/ /\n/g' | sort)
+TARGETS_MIN:=$(patsubst %,%+MIN.zip,$(FIRMWARES))
+TARGETS_MI_OPT:=$(patsubst %,%+MI+OPT.zip,$(FIRMWARES))
+
+TARGETS:=$(shell echo $(TARGETS_MIN) $(TARGETS_MI_OPT) | sed 's/ /\n/g' | sort)
 
 all: $(TARGETS)
 
-%+SSH.zip: orig-firmwares/%.bin repack-squashfs.sh
+%+MIN.zip: orig-firmwares/%.bin repack-min.sh
 	rm -f $@
 	-rm -rf ubifs-root/$*.bin
 	ubireader_extract_images -w orig-firmwares/$*.bin
-	fakeroot -- ./repack-squashfs.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
+	fakeroot -- ./repack-min.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
 	./ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
-	zip -9 $@ rax6-raw-img.bin
-	rm -f rax6-raw-img.bin
+	zip -9 $@ ra69-raw-img.bin
+	rm -f ra69-raw-img.bin
 
-%+SSH+MI.zip: orig-firmwares/%.bin repack-squashfs-mi.sh
+%+MI+OPT.zip: orig-firmwares/%.bin repack-mi-opt.sh
 	rm -f $@
 	-rm -rf ubifs-root/$*.bin
 	ubireader_extract_images -w orig-firmwares/$*.bin
-	fakeroot -- ./repack-squashfs-mi.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
+	fakeroot -- ./repack-mi-opt.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
 	./ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
-	zip -9 $@ rax6-raw-img.bin
-	rm -f rax6-raw-img.bin
-
-%+SSH+MI+opt.zip: orig-firmwares/%.bin repack-squashfs-mi-opt.sh
-	rm -f $@
-	-rm -rf ubifs-root/$*.bin
-	ubireader_extract_images -w orig-firmwares/$*.bin
-	fakeroot -- ./repack-squashfs-mi-opt.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
-	./ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
-	zip -9 $@ rax6-raw-img.bin
-	rm -f rax6-raw-img.bin
-
-%+SSH+opt.zip: orig-firmwares/%.bin repack-squashfs-opt.sh
-	rm -f $@
-	-rm -rf ubifs-root/$*.bin
-	ubireader_extract_images -w orig-firmwares/$*.bin
-	fakeroot -- ./repack-squashfs-opt.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
-	./ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
-	zip -9 $@ rax6-raw-img.bin
-	rm -f rax6-raw-img.bin
+	zip -9 $@ ra69-raw-img.bin
+	rm -f ra69-raw-img.bin
