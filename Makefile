@@ -48,3 +48,15 @@ clean:
 dependencies:
 		sudo apt install -y python3-pip python3-lzo mtd-utils fakeroot zip 
 		sudo pip install ubi_reader
+
+test:
+		rm -rf rootfs
+		rm -f ra69-raw-img.bin
+		unzip miwifi_ra69_all_81ac71_1.1.10+min.zip
+		ubireader_extract_images -w ra69-raw-img.bin
+		rm -f ra69-raw-img.bin
+		mkdir rootfs
+		fakeroot -- unsquashfs -f -d rootfs ubifs-root/ra69-raw-img.bin/*_vol-ubi_rootfs.ubifs
+		rm -rf ubifs-root
+		# cd rootfs
+		# fakeroot /bin/bash

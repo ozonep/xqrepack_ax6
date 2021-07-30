@@ -47,18 +47,18 @@ ssh_en=1
 boot_wait=on
 XQDEF
 
-# # always reset our access nvram variables
-# grep -q -w enable_dev_access "$FSDIR/lib/preinit/31_restore_nvram" || \
-#  cat <<NVRAM >> "$FSDIR/lib/preinit/31_restore_nvram"
-# enable_dev_access() {
-# 	nvram set uart_en=1
-# 	nvram set ssh_en=1
-# 	nvram set boot_wait=on
-# 	nvram commit
-# }
+# always reset our access nvram variables
+grep -q -w enable_dev_access "$FSDIR/lib/preinit/31_restore_nvram" || \
+ cat <<NVRAM >> "$FSDIR/lib/preinit/31_restore_nvram"
+enable_dev_access() {
+	nvram set uart_en=1
+	nvram set ssh_en=1
+	nvram set boot_wait=on
+	nvram commit
+}
 
-# boot_hook_add preinit_main enable_dev_access
-# NVRAM
+boot_hook_add preinit_main enable_dev_access
+NVRAM
 
 # modify root password
 sed -i "s@root:[^:]*@root:${ROOTPW}@" "$FSDIR/etc/shadow"
@@ -73,7 +73,7 @@ chown root:root "$FSDIR/sbin/xqflash"
 
 # add ru and en languages
 cp languages/*.lmo "$FSDIR/usr/lib/lua/luci/i18n"
-sed -e "s/option lang 'zh_cn'/option lang 'en'/" "$FSDIR/etc/config/luci"
+sed -i "s/zh_cn/en/" "$FSDIR/etc/config/luci"
 
 # add overlay
 cat >$FSDIR/etc/init.d/miwifi_overlay << EOF
@@ -100,7 +100,7 @@ EOF
 chmod 755 $FSDIR/etc/init.d/miwifi_overlay
 
 # /etc/init.d/miwifi_overlay enable
-ln -s $FSDIR/etc/init.d/miwifi_overlay $FSDIR/etc/rc.d/S00miwifi_overlay
+ln -s ../init.d/miwifi_overlay $FSDIR/etc/rc.d/S00miwifi_overlay
 
 # prevent auto-update
 > $FSDIR/usr/sbin/otapredownload
