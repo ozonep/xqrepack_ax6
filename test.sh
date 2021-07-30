@@ -1,13 +1,12 @@
 #!/bin/sh
 
-# unpack, modify and re-pack the Redmi AX6 firmware
-# removes checks for release channel before starting dropbear
 #
-# 2020.07.20  darell tan, 29.07.2021 Andrii Marchuk
+# Test script. Select firmware zip file and unpack it. 
+#
+# 29.07.2021 Andrii Marchuk
 # 
 
-fName="ra69-raw-img.bin"
-tFolder="rootfs"
+tFolder="rootfs-test"
 
 # Select firmware
 set -- *.zip
@@ -37,7 +36,7 @@ shift "$(( number - 1 ))"
 
 # Clean previous results
 rm -rf $tFolder
-fName="unzip -Z1 $1"
+fName=$(unzip -Z1 $1)
 rm -f $fName
 
 # Extract firmware
