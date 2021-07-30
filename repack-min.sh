@@ -71,7 +71,7 @@ chown root:root "$FSDIR/sbin/xqflash"
 
 # add ru and en languages
 cp languages/*.lmo "$FSDIR/usr/lib/lua/luci/i18n"
-sed -e "s/option lang 'zh_cn'/option lang 'en'/" "$FSDIR/etc/config/luci"
+sed -i "s/option lang 'zh_cn'/option lang 'en'/" "$FSDIR/etc/config/luci"
 
 # add overlay
 cat >$FSDIR/etc/init.d/miwifi_overlay << EOF
@@ -96,8 +96,8 @@ start() {
 }
 EOF
 chmod 755 $FSDIR/etc/init.d/miwifi_overlay
-# /etc/init.d/miwifi_overlay enable
-ln -s $FSDIR/etc/init.d/miwifi_overlay ../rc.d/S00miwifi_overlay
+# $FSDIR/etc/init.d/miwifi_overlay enable
+ln -s ../init.d/miwifi_overlay $FSDIR/etc/rc.d/S00miwifi_overlay
 
 
 >&2 echo "repacking squashfs..."

@@ -44,3 +44,7 @@ clean:
 		rm -rf *+custom.zip
 		rm -rf ubifs-root
 		rm -f ra69-raw-img.bin
+
+dependencies:
+		sudo apt install -y python3-pip python3-lzo mtd-utils fakeroot zip 
+		sudo pip install ubi_reader
