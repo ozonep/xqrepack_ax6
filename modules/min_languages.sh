@@ -7,5 +7,5 @@
 FSDIR=$1
 
 # add ru and en languages
-cp ../modules/languages/*.lmo "$FSDIR/usr/lib/lua/luci/i18n"
+cp ./modules/languages/*.lmo "$FSDIR/usr/lib/lua/luci/i18n"
 sed -i "s/zh_cn/en/" "$FSDIR/etc/config/luci"

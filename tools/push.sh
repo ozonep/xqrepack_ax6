@@ -1,12 +1,10 @@
 #!/bin/sh
 
 #
-# Test script. Select firmware zip file and unpack it. 
+# Push to the router. Select firmware zip file and send to 192.168.31.1.
 #
 # 29.07.2021 Andrii Marchuk
 # 
-
-tFolder=$1
 
 # Select firmware
 set -- *.zip
@@ -17,7 +15,7 @@ while true; do
         printf '%d) %s\n' "$i" "$pathname" >&2
     done
 
-    printf 'Select a zip file to extract, or 0 to exit: ' >&2
+    printf 'Select a zip file to push to the router, or 0 to exit: ' >&2
     read -r reply
 
     number=$(printf '%s\n' "$reply" | tr -dc '[:digit:]')
@@ -35,20 +33,17 @@ shift "$(( number - 1 ))"
 
 
 # Clean previous results
-rm -rf $tFolder
 fName=$(unzip -Z1 $1)
 rm -f $fName
 
 # Extract firmware
 unzip $1
-ubireader_extract_images -w $fName
-mkdir $tFolder
-fakeroot -- unsquashfs -f -d $tFolder ubifs-root/$fName/*_vol-ubi_rootfs.ubifs
+
+# send to router
+scp $fName root@192.168.31.1:/tmp
 
 # Clean temp files
 rm -f $fName
-rm -rf ubifs-root
 
 # Done
-
-echo "--> Done. Navigate to the '$tFolder' folder to see the root file system. \n--> Use 'fakeroot - / bin / bash' if you need to change the FS."
+echo "--> Done. The '$fName' saved at '/tmp/$fName' on your router."

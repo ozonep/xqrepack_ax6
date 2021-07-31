@@ -28,27 +28,32 @@ unsquashfs -f -d "$FSDIR" "$IMG"
 >&2 echo "patching squashfs..."
 
 
-# mark web footer so that users can confirm the right version has been flashed
-../modules/footer_version.sh $FSDIR
+# # mark web footer so that users can confirm the right version has been flashed
+# ./modules/footer_version.sh $FSDIR
 
-# activate ssh and run dropbear
-../modules/ssh.sh $FSDIR
-../modules/dropbear.sh $FSDIR
+# # activate ssh and run dropbear
+# ./modules/ssh.sh $FSDIR
+# ./modules/dropbear.sh $FSDIR
 
-# change password for root
-../modules/root.sh $FSDIR
+# # change password for root
+# ./modules/root.sh $FSDIR
 
-# add xqflash tool into firmware for easy upgrades
-../modules/xqflash.sh $FSDIR
+# # add xqflash tool into firmware for easy upgrades
+# ./modules/xqflash.sh $FSDIR
 
-# add ru and en languages
-../modules/languages.sh $FSDIR
+# # add ru and en languages
+# ./modules/languages.sh $FSDIR
 
-# add overlay
-../modules/miwifi_overlay.sh $FSDIR
+# # add overlay
+# ./modules/miwifi_overlay.sh $FSDIR
 
-# Add default reposs
-../modules/default_reposs.sh $FSDIR
+# # Add default reposs
+# ./modules/default_reposs.sh $FSDIR
+
+for FILE in ls ./modules/min_*.sh
+do
+    $FILE $FSDIR
+done
 
 >&2 echo "repacking squashfs..."
 rm -f "$IMG.new"

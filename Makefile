@@ -8,37 +8,37 @@ TARGETS:=$(shell echo $(TARGETS_MIN) $(TARGETS_MAX) $(TARGETS_CUSTOM) | sed 's/ 
 
 all: $(TARGETS)
 
-%+min.zip: orig-firmwares/%.bin ./modules/repack-min.sh
+%+min.zip: orig-firmwares/%.bin ./repack/repack-min.sh
 		rm -f $@
 		rm -rf ubifs-root/$*.bin
 		ubireader_extract_images -w orig-firmwares/$*.bin
-		fakeroot -- ./modules/repack-min.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
+		fakeroot -- ./repack/repack-min.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
 		./tools/ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
 		rm -rf ubifs-root
 		zip -9 $@ ra69-raw-img.bin
 		rm -f ra69-raw-img.bin
 
-%+max.zip: orig-firmwares/%.bin ./modules/repack-max.sh
+%+max.zip: orig-firmwares/%.bin ./repack/repack-max.sh
 		rm -f $@
 		rm -rf ubifs-root/$*.bin
 		ubireader_extract_images -w orig-firmwares/$*.bin
-		fakeroot -- ./modules/repack-max.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
+		fakeroot -- ./repack/repack-max.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
 		./tools/ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
 		rm -rf ubifs-root
 		zip -9 $@ ra69-raw-img.bin
 		rm -f ra69-raw-img.bin
 
-%+custom.zip: orig-firmwares/%.bin ./modules/repack-custom.sh
+%+custom.zip: orig-firmwares/%.bin ./repack/repack-custom.sh
 		rm -f $@
 		rm -rf ubifs-root/$*.bin
 		ubireader_extract_images -w orig-firmwares/$*.bin
-		fakeroot -- ./modules/repack-custom.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
+		fakeroot -- ./repack/repack-custom.sh ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs
 		./tools/ubinize.sh ubifs-root/$*.bin/img-*_vol-kernel.ubifs ubifs-root/$*.bin/img-*_vol-ubi_rootfs.ubifs.new
 		rm -rf ubifs-root
 		zip -9 $@ ra69-raw-img.bin
 		rm -f ra69-raw-img.bin
 
-clean:
+clean_all:
 		rm -rf *+min.zip
 		rm -rf *+max.zip
 		rm -rf *+custom.zip
@@ -52,3 +52,9 @@ dependencies:
 
 test:
 		./tools/test.sh rootfs-test
+
+test_clean:
+		rm -rf rootfs-test
+
+push:
+		./tools/push.sh
