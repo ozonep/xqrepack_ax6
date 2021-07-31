@@ -28,8 +28,8 @@ IMG=$1
     # Select sh files with prefix "min"
     for FILE in ./modules/min_*.sh
     do
-    echo "  --> $FILE"
-    sh $FILE $FSDIR
+        echo "  --> $FILE"
+        sh $FILE $FSDIR
     done
 
 >&2 echo "repacking squashfs..."
