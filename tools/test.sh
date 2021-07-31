@@ -50,4 +50,4 @@ rm -f $fName
 rm -rf ubifs-root
 
 # Done
-echo "Done. Go to $tFolder folder to see root file system. \nUse 'fakeroot -- /bin/bash' if needed to modify FS."
+echo "Done. Go to a '$tFolder' folder to see root file system. \nUse the 'fakeroot -- /bin/bash' if you needed to modify the FS."
