@@ -6,7 +6,7 @@
 # 29.07.2021 Andrii Marchuk
 # 
 
-tFolder="rootfs-test"
+tFolder=$1
 
 # Select firmware
 set -- *.zip
@@ -43,11 +43,11 @@ rm -f $fName
 unzip $1
 ubireader_extract_images -w $fName
 mkdir $tFolder
-fakeroot -- unsquashfs -f -d rootfs ubifs-root/$fName/*_vol-ubi_rootfs.ubifs
+fakeroot -- unsquashfs -f -d $tFolder ubifs-root/$fName/*_vol-ubi_rootfs.ubifs
 
 # Clean temp files
 rm -f $fName
 rm -rf ubifs-root
 
 # Done
-echo "Done. Go to $tFolder and use 'fakeroot /bin/bash' if needed."
+echo "Done. Go to $tFolder folder to see root file system. \nUse 'fakeroot -- /bin/bash' if needed to modify FS."

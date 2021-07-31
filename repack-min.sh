@@ -1,8 +1,6 @@
 #!/bin/sh
 #
 # unpack, modify and re-pack the Redmi AX6 firmware
-# removes checks for release channel before starting dropbear
-#
 # 2020.07.20  darell tan, 29.07.2021 Andrii Marchuk
 # 
 
@@ -31,7 +29,6 @@ unsquashfs -f -d "$FSDIR" "$IMG"
 
 # modify dropbear init
 sed -i 's/"release"/"debug"/' "$FSDIR/etc/init.d/dropbear"
-# sed -i 's/flg_ssh=.*/flg_ssh=1/' "$FSDIR/etc/init.d/dropbear"
 
 # mark web footer so that users can confirm the right version has been flashed
 sed -i 's/romVersion%>/& patched by uamarchuan/;' "$FSDIR/usr/lib/lua/luci/view/web/inc/footer.htm"
@@ -65,6 +62,8 @@ NVRAM
 # modify root password
 sed -i "s@root:[^:]*@root:${ROOTPW}@" "$FSDIR/etc/shadow"
 
+# # stop resetting root password
+sed -i '/set_user(/a return 0' "$FSDIR/etc/init.d/system"
 
 # add xqflash tool into firmware for easy upgrades
 cp xqflash "$FSDIR/sbin"
@@ -101,6 +100,11 @@ chmod 755 $FSDIR/etc/init.d/miwifi_overlay
 # $FSDIR/etc/init.d/miwifi_overlay enable
 ln -s ../init.d/miwifi_overlay $FSDIR/etc/rc.d/S00miwifi_overlay
 
+# Add default reposs
+cat <<EOF >> "$FSDIR/etc/opkg/distfeeds.conf"
+src/gz openwrt_luci http://downloads.openwrt.org/releases/18.06-SNAPSHOT/packages/aarch64_cortex-a53/luci
+src/gz openwrt_telephony http://downloads.openwrt.org/releases/18.06-SNAPSHOT/packages/aarch64_cortex-a53/telephony
+EOF
 
 >&2 echo "repacking squashfs..."
 rm -f "$IMG.new"

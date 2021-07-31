@@ -3,7 +3,7 @@ xqrepack fork for Redmi AX6 AX3000 Wi-Fi 6 Mesh Router
 
 These scripts allow you to modify the *Redmi AX6 AX3000* firmware image to make sure SSH and UART access is always enabled.
 
-The default root password is `admin`. Please remember to login to the router and change that after the upgrade. Your router settings like IP address and SSIDs are stored in the nvram and should stay the same.
+The default root password is `admin`. Also a usefull link to [https://www.oxygen7.cn/miwifi/](https://www.oxygen7.cn/miwifi/) to get the default password. Please remember to login to the router and change that after the upgrade. Your router settings like IP address and SSIDs are stored in the nvram and should stay the same.
 
 ⚠ The script also tries its best to remove or disable phone-home binaries, and also the smart controller (AIoT) parts, leaving you with a (close to) OpenWRT router that you can configure via UCI or `/etc/config`.
 Between preserving stock functionality and privacy concerns, I would err on the side of caution and rather that some functionality be sacrificed for a router that I have more confidence to connect to the Internet.
@@ -14,7 +14,7 @@ Once you have SSH, you can use this repacking method to maintain SSH access for 
 Requirements
 ==============
 
-You will need to install the following tools manually or via script `install_dependencies.sh`:
+You will need to install the following tools manually or run `make dependencies`:
 
 - [ubi_reader](https://github.com/jrspruitt/ubi_reader)
 - ubinize
@@ -31,12 +31,15 @@ Usage
 2. Run `make` to build archives of patched firmwares.
    Parallel build not supported!
    This will build patched images with following naming convention:
-   - `<firmware_image_name>+min.zip`: patched with original `repack-min.sh` script, which enables SSH and mount overlay partition. and does its best to disable Xiaomi functions/bloatware
-   - `<firmware_image_name>+max.zip`: enables SSH, mount overlay partition, disable Xiaomi functions/bloatware and `/opt` directory created
-  - `<firmware_image_name>+custom.zip`: all patches from minimal version + all what you added in the 'repack-custom.sh' script.
+   - `<firmware_image_name>+min.zip`: patched with `repack-min.sh` script, minimum changes just enables SSH, mount overlay partition and added EN (default) and RU languages.
+   - `<firmware_image_name>+max.zip`: all patches from minimal version + disabled Xiaomi functions/bloatware, `/opt`, etc. 
+   - `<firmware_image_name>+custom.zip`: all patches from minimal version + all what YOU have added in the 'repack-custom.sh' script.
 
 3. After extracting a generated archive of your liking, you will get `ra69-raw-img.bin` file.
    Flash this file directly into the router using SSH.
+        
+        scp ra69-raw-img.bin root@192.168.31.1:/tmp
+
    You cannot use the web UI because this is a raw image, and more importantly has no signature.
 
    If you are using a recently xqrepack'ed firmware, you can use the `xqflash` utility on the router to flash an update image:
@@ -83,6 +86,17 @@ You should pick the partition that is **not in use**, otherwise `ubiformat` will
     ubiformat: error!: please, first detach mtd13 (/dev/mtd13) from ubi0
 
 
+Test your build firmware
+==========================
+Run `make test` to extract your patched firmware. Follow the instruction in the script to select the proper archive
+with firmware. In case of success you will get your FS in the `rootfs-test` folder. 
+
+
+Clear project folder
+======================
+Run `make clean` to remove temp files, folders and patched firmwares in zip from the project folder. 
+
+
 License
 =========
 
@@ -112,4 +126,3 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-

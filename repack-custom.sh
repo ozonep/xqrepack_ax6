@@ -1,15 +1,12 @@
 #!/bin/sh
 #
 # unpack, modify and re-pack the Redmi AX6 firmware
-# removes checks for release channel before starting dropbear
-#
 # 2020.07.20  darell tan, 29.07.2021 Andrii Marchuk
 # 
 
 set -e
 
 IMG=$1
-# ROOTPW='$1$qtLLI4cm$c0v3yxzYPI46s28rbAYG//'  # "password"
 ROOTPW='$1$8dQJXnUp$w8GiqwwVcvH0637LibXrs/'  # "admin"
 
 [ -e "$IMG" ] || { echo "rootfs img not found $IMG"; exit 1; }
@@ -31,29 +28,31 @@ unsquashfs -f -d "$FSDIR" "$IMG"
 >&2 echo "patching squashfs..."
 
 # modify dropbear init
-sed -i 's/channel=.*/channel=debug/' "$FSDIR/etc/init.d/dropbear"
-# sed -i 's/flg_ssh=.*/flg_ssh=1/' "$FSDIR/etc/init.d/dropbear"
+sed -i 's/"release"/"debug"/' "$FSDIR/etc/init.d/dropbear"
 
 # mark web footer so that users can confirm the right version has been flashed
-sed -i 's/romVersion%>/& xqrepack_uamarchuan/;' "$FSDIR/usr/lib/lua/luci/view/web/inc/footer.htm"
+sed -i 's/romVersion%>/& patched by uamarchuan/;' "$FSDIR/usr/lib/lua/luci/view/web/inc/footer.htm"
 
 
 # make sure our backdoors are always enabled by default
 sed -i '/ssh_en/d;' "$FSDIR/usr/share/xiaoqiang/xiaoqiang-reserved.txt"
-sed -i '/ssh_en=/d; /uart_en=/d; /boot_wait=/d;' "$FSDIR/usr/share/xiaoqiang/xiaoqiang-defaults.txt"
+sed -i '/ssh_en=/d; /uart_en=/d; /boot_wait=/d; /telnet_en=/d;' "$FSDIR/usr/share/xiaoqiang/xiaoqiang-defaults.txt"
 cat <<XQDEF >> "$FSDIR/usr/share/xiaoqiang/xiaoqiang-defaults.txt"
 uart_en=1
+telnet_en=1
 ssh_en=1
 boot_wait=on
 XQDEF
 
-# always reset our access nvram variables
+# # always reset our access nvram variables
 grep -q -w enable_dev_access "$FSDIR/lib/preinit/31_restore_nvram" || \
  cat <<NVRAM >> "$FSDIR/lib/preinit/31_restore_nvram"
 enable_dev_access() {
 	nvram set uart_en=1
+    nvram set telnet_en=1
 	nvram set ssh_en=1
 	nvram set boot_wait=on
+	nvram set CountryCode=EU
 	nvram commit
 }
 
@@ -63,11 +62,17 @@ NVRAM
 # modify root password
 sed -i "s@root:[^:]*@root:${ROOTPW}@" "$FSDIR/etc/shadow"
 
+# # stop resetting root password
+sed -i '/set_user(/a return 0' "$FSDIR/etc/init.d/system"
 
 # add xqflash tool into firmware for easy upgrades
 cp xqflash "$FSDIR/sbin"
 chmod 0755      "$FSDIR/sbin/xqflash"
 chown root:root "$FSDIR/sbin/xqflash"
+
+# add ru and en languages
+cp languages/*.lmo "$FSDIR/usr/lib/lua/luci/i18n"
+sed -i "s/zh_cn/en/" "$FSDIR/etc/config/luci"
 
 # add overlay
 cat >$FSDIR/etc/init.d/miwifi_overlay << EOF
@@ -92,9 +97,25 @@ start() {
 }
 EOF
 chmod 755 $FSDIR/etc/init.d/miwifi_overlay
-# /etc/init.d/miwifi_overlay enable
+# $FSDIR/etc/init.d/miwifi_overlay enable
 ln -s ../init.d/miwifi_overlay $FSDIR/etc/rc.d/S00miwifi_overlay
 
+# Add default reposs
+cat <<EOF >> "$FSDIR/etc/opkg/distfeeds.conf"
+src/gz openwrt_luci http://downloads.openwrt.org/releases/18.06-SNAPSHOT/packages/aarch64_cortex-a53/luci
+src/gz openwrt_telephony http://downloads.openwrt.org/releases/18.06-SNAPSHOT/packages/aarch64_cortex-a53/telephony
+EOF
+
+#####################################################################################################################
+############################################ Add your changes here below ############################################
+#####################################################################################################################
+
+
+
+
+
+
+#####################################################################################################################
 
 >&2 echo "repacking squashfs..."
 rm -f "$IMG.new"
