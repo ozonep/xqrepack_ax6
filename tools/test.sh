@@ -51,4 +51,5 @@ rm -rf ubifs-root
 
 # Done
 
-echo "--> Done. Navigate to the '$tFolder' folder to see the root file system. \n--> Use 'fakeroot - / bin / bash' if you need to change the FS."
+echo "--> Done. Navigate to the '$tFolder' folder to see the root file system.
+--> Use 'fakeroot - /bin/bash' if you need to change the FS."

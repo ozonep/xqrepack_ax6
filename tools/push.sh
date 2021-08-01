@@ -46,4 +46,4 @@ scp $fName root@192.168.31.1:/tmp
 rm -f $fName
 
 # Done
-echo "--> Done. The '$fName' saved at '/tmp/$fName' on your router."
+echo "--> Done. The firmvare saved at '/tmp/$fName'. Run the 'xqflash /tmp/$fName'."

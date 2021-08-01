@@ -26,26 +26,26 @@ IMG=$1
 
 >&2 echo "patching squashfs..."
     # activate ssh and run dropbear
-    sh ./modules/ssh.sh $FSDIR
-    sh ./modules/dropbear.sh $FSDIR
+    sh ./modules/min_ssh.sh $FSDIR
+    sh ./modules/min_dropbear.sh $FSDIR
 
     # change password for root
-    sh ./modules/root.sh $FSDIR
+    sh ./modules/min_root.sh $FSDIR
 
     # add xqflash tool into firmware for easy upgrades
-    sh ./modules/xqflash.sh $FSDIR
+    sh ./modules/min_xqflash.sh $FSDIR
 
     # add overlay
-    sh ./modules/miwifi_overlay.sh $FSDIR
+    sh ./modules/min_miwifi_overlay.sh $FSDIR
 
     # Add default reposs
-    sh ./modules/default_reposs.sh $FSDIR
+    sh ./modules/min_default_reposs.sh $FSDIR
 
     # add ru and en languages
-    sh ./modules/languages.sh $FSDIR
+    sh ./modules/min_languages.sh $FSDIR
 
     # mark web footer so that users can confirm the right version has been flashed
-    sh ./modules/footer_version.sh $FSDIR
+    sh ./modules/min_footer_version.sh $FSDIR
 
 
 #####################################################################################################################

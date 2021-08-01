@@ -7,7 +7,7 @@
 FSDIR=$1
 
 # prevent stats phone home & auto-update
-for f in StatPoints mtd_crash_log logupload.lua otapredownload wanip_check.sh; do > $FSDIR/usr/sbin/$f; done
+for f in StatPoints mtd_crash_log logupload.lua wanip_check.sh; do > $FSDIR/usr/sbin/$f; done
 rm -f $FSDIR/etc/hotplug.d/iface/*wanip_check
 sed -i '/start_service(/a return 0' $FSDIR/etc/init.d/messagingagent.sh
 

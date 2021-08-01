@@ -9,7 +9,7 @@ FSDIR=$1
 # dont start crap services
 for SVC in stat_points statisticsservice \
 		datacenter \
-		# smartcontroller \
+		\ # smartcontroller \
 		wan_check \
 		plugincenter plugin_start_script.sh cp_preinstall_plugins.sh; do
 	rm -f $FSDIR/etc/rc.d/[SK]*$SVC
