@@ -7,5 +7,6 @@
 FSDIR=$1
 
 # modify dropbear init
+# sed -i 's/flg_ssh=.*/flg_ssh=1/' "$FSDIR/etc/init.d/dropbear"
 sed -i '/flg_ssh=/a flg_ssh=1' "$FSDIR/etc/init.d/dropbear"
 sed -i 's/"release"/"debug"/' "$FSDIR/etc/init.d/dropbear"
