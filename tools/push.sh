@@ -42,6 +42,14 @@ unzip $1
 # send to router
 scp $fName root@192.168.31.1:/tmp
 
+#exec 
+scp ./modules/sbin/xqflash root@192.168.31.1:/tmp
+ssh root@192.168.31.1 'chmod +x /sbin/xqflash'
+# ssh root@192.168.31.1 'chmod +x /sbin/xqflash && /sbin/xqflash /tmp/$fName'
+# or
+# ssh root@192.168.31.1 '/sbin/xqflash /tmp/$fName'
+
+
 # Clean temp files
 rm -f $fName
 
