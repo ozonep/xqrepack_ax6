@@ -10,12 +10,14 @@ FSDIR=$1
 cat >$FSDIR/etc/init.d/miwifi_overlay << EOF
 #!/bin/sh /etc/rc.common
 START=00
+STOP=00
+
 . /lib/functions/preinit.sh
 start() {
         [ -e /data/overlay ] || mkdir /data/overlay
         [ -e /data/overlay/upper ] || mkdir /data/overlay/upper
         [ -e /data/overlay/work ] || mkdir /data/overlay/work
-
+        
         mount --bind /data/overlay /overlay
         fopivot /overlay/upper /overlay/work /rom 1
 
@@ -27,6 +29,11 @@ start() {
 
         return 0
 }
+stop() {
+        [ -d /data/overlay ] && umount -r /overlay
+        return 0
+}
+
 EOF
 chmod 755 $FSDIR/etc/init.d/miwifi_overlay
 # $FSDIR/etc/init.d/miwifi_overlay enable
