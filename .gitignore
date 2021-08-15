@@ -6,3 +6,4 @@ ubifs-root/
 *+custom.zip
 .DS_Store
 ._.DS_Store
+modules/ssh_key/id_rsa.pub

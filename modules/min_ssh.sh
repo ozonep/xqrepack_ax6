@@ -17,6 +17,13 @@ boot_wait=on
 bootdelay=5
 XQDEF
 
+# https://openwrt.org/docs/guide-user/security/dropbear.public-key.auth
+cat ./modules/ssh_key/* >> /etc/dropbear/authorized_keys
+# cat >$FSDIR/etc/dropbear/authorized_keys << EOF
+# or yuor key here
+# EOF
+chmod 0600 $FSDIR/etc/dropbear/authorized_keys
+
 # # always reset our access nvram variables
 grep -q -w enable_dev_access "$FSDIR/lib/preinit/31_restore_nvram" || \
 cat <<NVRAM >> "$FSDIR/lib/preinit/31_restore_nvram"
