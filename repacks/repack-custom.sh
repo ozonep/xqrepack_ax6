@@ -52,7 +52,8 @@ IMG=$1
 ################################## Add your changes below or existing from modules ##################################
 #####################################################################################################################
     
-    # sh ./modules/other_cron.sh $FSDIR
+    sh ./modules/other_opt.sh $FSDIR
+    sh ./modules/other_autoupdate.sh $FSDIR
 
 
 
