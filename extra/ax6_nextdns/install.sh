@@ -38,14 +38,10 @@ echo 'Install stubby'
 echo 'Configure and start stubby'
 mv -f /opt/etc/stubby/stubby.yml /opt/etc/stubby/stubby.yml.bak
 cat << 'EOF' > /opt/etc/stubby/stubby.yml
-# Note: by default on OpenWRT stubby configuration is handled via
-# the UCI system and the file /etc/config/stubby. If you want to
-# use this file to configure stubby, then set "option manual '1'"
-# in /etc/config/stubby.
+# Note: by default on OpenWRT stubby configuration is handled
 resolution_type: GETDNS_RESOLUTION_STUB
 round_robin_upstreams: 1
 appdata_dir: "/var/lib/stubby"
-# tls_authentication: GETDNS_AUTHENTICATION_REQUIRED
 tls_query_padding_blocksize: 128
 edns_client_subnet_private: 1
 idle_timeout: 10000
@@ -55,14 +51,14 @@ listen_addresses:
 dns_transport_list:
   - GETDNS_TRANSPORT_TLS
 upstream_recursive_servers:
-  - address_data: 1.1.1.1
-    tls_auth_name: "cloudflare-dns.com"
-  - address_data: 1.0.0.1
-    tls_auth_name: "cloudflare-dns.com"
-  - address_data: 8.8.8.8
-    tls_auth_name: "dns.google"
-  - address_data: 8.8.4.4
-    tls_auth_name: "dns.google"
+  - address_data: 45.90.28.0
+    tls_auth_name: "*.dns1.nextdns.io"
+  - address_data: 2a07:a8c0::0
+    tls_auth_name: "*.dns1.nextdns.io"
+  - address_data: 45.90.30.0
+    tls_auth_name: "*.dns2.nextdns.io"
+  - address_data: 2a07:a8c1::0
+    tls_auth_name: "*.dns2.nextdns.io"
 EOF
 cat << 'EOF' > /etc/init.d/stubby
 #!/bin/sh /etc/rc.common
@@ -72,7 +68,7 @@ START=98
 STOP=00
  
 start() {        
-        /opt/sbin/stubby -g
+  /opt/sbin/stubby -g
 	echo "Stubby started"
 }                 
  
@@ -98,8 +94,6 @@ ENDPOINT_IP4="0.0.0.0"
 TMPDIR="/tmp/block.build.list"
 STGDIR="/tmp/block.build.before"
 TARGET="/tmp/block.hosts"
-BLIST="/opt/etc/adblock/black.list"
-WLIST="/opt/etc/adblock/white.list"
 
 curl -k -o- "https://schakal.ru/hosts/alive_hosts_ru_com_zen.txt" | awk -v r="$ENDPOINT_IP4" '{sub(/^0.0.0.0/, r)} $0 ~ "^"r' > "$STGDIR"
 
@@ -121,14 +115,14 @@ START=99
 STOP=00
  
 start() {        
-        echo "Downloading hosts"
-        /opt/etc/adblock/update.sh
+  echo "Downloading hosts"
+  /opt/etc/adblock/update.sh
 	echo "Adblock started"
 }                 
  
 stop() {
 	echo "Removing block.hosts"          
-        rm -f /tmp/block.hosts
+  rm -f /tmp/block.hosts
 	killall -SIGHUP dnsmasq 
 	echo "Adblock stoped"
 }
@@ -145,4 +139,16 @@ no-resolv
 server=127.0.0.1#65053
 EOF
 
+echo 'Add firewall rule to block other DNS services'
+cat << EOT >> /etc/config/firewall
+config rule                                                
+        option name 'Disallow-other-DNS'    
+        option src 'lan'                    
+        option dest 'wan'                      
+        option proto 'tcp udp'                             
+        option dest_port '53'                              
+        option target 'REJECT' 
+EOT
+
 /etc/init.d/dnsmasq restart
+fw3 reload
